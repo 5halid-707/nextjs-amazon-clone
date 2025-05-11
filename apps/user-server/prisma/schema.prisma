@@ -1,0 +1,66 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model IsAdmin {
+  createdAt     DateTime @default(now())
+  id            String   @id @default(cuid())
+  orders        Order?   @relation(name: "orders")
+  paymentintent String?
+  paymentstatus Boolean?
+  price         Float?
+  product       Product? @relation(fields: [productId], references: [id])
+  productId     String?
+  products      Order[]  @relation(name: "IsAdminProductsOrderIsAdmins")
+  reviews       Review?
+  status        Json?
+  updatedAt     DateTime @updatedAt
+}
+
+model Product {
+  category        Category? @relation(fields: [categoryId], references: [id])
+  categoryId      String?
+  colors          Json
+  createdAt       DateTime  @default(now())
+  discountedPrice Float
+  discription     Json
+  id              String    @id @default(cuid())
+  images          Json
+  isAdmins        IsAdmin[]
+  title           String
+  titlePrice      Float
+  updatedAt       DateTime  @updatedAt
+  varlants        Json
+}
+
+model Category {
+  createdAt DateTime  @default(now())
+  id        String    @id @default(cuid())
+  name      String?
+  products  Product[]
+  updatedAt DateTime  @updatedAt
+}
+
+model Review {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  rating    Int
+  updatedAt DateTime @updatedAt
+  user      IsAdmin? @relation(fields: [userId], references: [id])
+  userId    String?  @unique
+}
+
+model Order {
+  createdAt  DateTime @default(now())
+  id         String   @id @default(cuid())
+  isAdmins   IsAdmin? @relation(name: "IsAdminProductsOrderIsAdmins", fields: [isAdminsId], references: [id])
+  isAdminsId String?
+  updatedAt  DateTime @updatedAt
+  user       IsAdmin? @relation(name: "orders", fields: [userId], references: [id])
+  userId     String?  @unique
+}
